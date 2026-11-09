@@ -1,7 +1,7 @@
 package tyler.gymmatch.gymmatch.user;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -15,7 +15,7 @@ import tyler.gymmatch.gymmatch.base.BaseEntity;
 import tyler.gymmatch.gymmatch.user.enums.UserEnums;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User extends BaseEntity {
 
   @Id
@@ -47,14 +47,19 @@ public class User extends BaseEntity {
 
   protected User() {}
 
-  public User(String account, String passwordHash, String name, String gender, LocalDate birthday) {
+  public User(
+      String account,
+      String passwordHash,
+      String name,
+      UserEnums.Gender gender,
+      LocalDate birthday) {
     this.id = "User_" + UUID.randomUUID();
     this.account = account;
     this.passwordHash = passwordHash;
     this.name = name;
     this.birthday = birthday;
     this.gender = gender;
-    this.role = User.USER;
+    this.role = UserEnums.Role.USER;
   }
 
   public void recordLogin() {
@@ -71,5 +76,37 @@ public class User extends BaseEntity {
 
   public String getName() {
     return name;
+  }
+
+  public UserEnums.Gender getGender() {
+    return gender;
+  }
+
+  public LocalDate getBirthday() {
+    return birthday;
+  }
+
+  public UserEnums.Role getRole() {
+    return role;
+  }
+
+  public void setAccount(String account) {
+    this.account = account;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setGender(UserEnums.Gender gender) {
+    this.gender = gender;
+  }
+
+  public void setBirthday(LocalDate birthday) {
+    this.birthday = birthday;
+  }
+
+  public void setRole(UserEnums.Role role) {
+    this.role = role;
   }
 }

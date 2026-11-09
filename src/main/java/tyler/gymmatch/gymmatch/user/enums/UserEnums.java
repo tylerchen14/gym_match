@@ -2,8 +2,7 @@ package tyler.gymmatch.gymmatch.user.enums;
 
 public final class UserEnums {
 
-  private UserEnums() {
-  }
+  private UserEnums() {}
 
   public enum Gender {
     MALE,
@@ -16,5 +15,4 @@ public final class UserEnums {
     ADMIN,
     SUPERUSER
   }
-
 }
