@@ -1,0 +1,35 @@
+services:
+    backend:
+        restart: unless-stopped
+        image: inventory_backend:v0.0.0
+        container_name: backend
+        ports:
+            - "7111:7111"
+        extends:
+            file: docker-compose-base.yml
+            service: base
+        depends_on:
+            db:
+                condition: service_healthy
+
+    db:
+        image: postgres:17
+        container_name: inventory_postgres
+        environment:
+            POSTGRES_DB: inventory
+            POSTGRES_USER: inventory
+            POSTGRES_PASSWORD: "0000"
+        ports:
+            - "7444:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
+
+
+volumes:
+    postgres_data:
