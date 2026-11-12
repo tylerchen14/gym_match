@@ -11,4 +11,6 @@ public record GymResponse(
     String website,
     String description,
     Instant created_at,
-    Instant updated_at) {}
+    Instant updated_at,
+    long userCount
+) {}

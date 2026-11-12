@@ -10,72 +10,78 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import tyler.gymmatch.gymmatch.gym.dto.GymRequest;
 import tyler.gymmatch.gymmatch.gym.dto.GymResponse;
+import tyler.gymmatch.gymmatch.membership.*;
 
 @Service
 public class GymService {
 
   private final GymRepository gymRepository;
   private final GymMapper gymMapper;
+  private final UserGymRepository userGymRepo;
 
-  public GymService(GymRepository gymRepository, GymMapper gymMapper) {
+  public GymService(GymRepository gymRepository,
+      GymMapper gymMapper,
+      UserGymRepository userGymRepo) {
     this.gymRepository = gymRepository;
     this.gymMapper = gymMapper;
+    this.userGymRepo = userGymRepo;
   }
 
   public List<GymResponse> get(GymRequest.GET data) {
 
-    Specification<Gym> spec =
-        (root, query, cb) -> {
-          List<Predicate> conditions = new ArrayList<>();
+    Specification<Gym> spec = (root, query, cb) -> {
+      List<Predicate> conditions = new ArrayList<>();
 
-          if (data.id() != null && !data.id().isBlank()) {
-            conditions.add(cb.equal(root.get("id"), data.id()));
-          }
+      if (data.id() != null && !data.id().isBlank()) {
+        conditions.add(cb.equal(root.get("id"), data.id()));
+      }
 
-          if (data.name() != null && !data.name().isBlank()) {
-            conditions.add(cb.like(root.get("name"), "%" + data.name().trim() + "%"));
-          }
+      if (data.name() != null && !data.name().isBlank()) {
+        conditions.add(cb.like(root.get("name"), "%" + data.name().trim() + "%"));
+      }
 
-          return cb.and(conditions.toArray(new Predicate[0]));
-        };
+      return cb.and(conditions.toArray(new Predicate[0]));
+    };
 
-    return gymRepository.findAll(spec).stream().map(gymMapper::toResponse).toList();
+    return gymRepository.findAll(spec).stream().map(gym -> {
+      long userCount = userGymRepo.countByGym_Id(gym.getId());
+      return gymMapper.toResponse(gym, userCount);
+    }).toList();
   }
 
   @Transactional
   public GymResponse post(GymRequest.POST data) {
-    Gym item =
-        new Gym(
-            data.name(),
-            data.address(),
-            data.phone(),
-            data.email(),
-            data.website(),
-            data.description());
+    Gym item = new Gym(
+        data.name(),
+        data.address(),
+        data.phone(),
+        data.email(),
+        data.website(),
+        data.description());
 
     Gym saved = gymRepository.save(item);
 
-    return gymMapper.toResponse(saved);
+    return gymMapper.toResponse(saved, 0L);
   }
 
   @Transactional
   public GymResponse patch(String gymId, GymRequest.PATCH data) {
-    Gym gym =
-        gymRepository
-            .findById(gymId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到健身房"));
+    Gym gym = gymRepository
+        .findById(gymId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到健身房"));
 
     gymMapper.update(data, gym);
 
-    return gymMapper.toResponse(gym);
+    long userCount = userGymRepo.countByGym_Id(gym.getId());
+
+    return gymMapper.toResponse(gym, userCount);
   }
 
   @Transactional
   public void delete(String gymId) {
-    Gym gym =
-        gymRepository
-            .findById(gymId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到健身房"));
+    Gym gym = gymRepository
+        .findById(gymId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到健身房"));
 
     gymRepository.delete(gym);
   }

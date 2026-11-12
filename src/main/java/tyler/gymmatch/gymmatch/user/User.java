@@ -1,18 +1,25 @@
 package tyler.gymmatch.gymmatch.user;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.List;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.UUID;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import tyler.gymmatch.gymmatch.base.BaseEntity;
+import tyler.gymmatch.gymmatch.gym.Gym;
 import tyler.gymmatch.gymmatch.user.enums.UserEnums;
+import tyler.gymmatch.gymmatch.membership.UserGym;
 
 @Entity
 @Table(name = "users")
@@ -45,7 +52,15 @@ public class User extends BaseEntity {
 
   private Instant lastLogin;
 
-  protected User() {}
+  @OneToMany(mappedBy = "user")
+  private List<UserGym> userGyms = new ArrayList<>();
+
+  public List<UserGym> getUserGyms() {
+    return userGyms;
+  }
+
+  protected User() {
+  }
 
   public User(
       String account,
@@ -108,5 +123,11 @@ public class User extends BaseEntity {
 
   public void setRole(UserEnums.Role role) {
     this.role = role;
+  }
+
+  public UserGym addGym(Gym gym) {
+    UserGym userGym = new UserGym(this, gym);
+    this.userGyms.add(userGym);
+    return userGym;
   }
 }

@@ -39,6 +39,7 @@ public class Gym extends BaseEntity {
     this.email = email;
     this.website = website;
     this.description = description;
+
   }
 
   public String getId() {

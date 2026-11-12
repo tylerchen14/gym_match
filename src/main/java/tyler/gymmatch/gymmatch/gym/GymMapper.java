@@ -11,9 +11,10 @@ import tyler.gymmatch.gymmatch.gym.dto.GymResponse;
 @Mapper(componentModel = "spring")
 public interface GymMapper {
 
-  @Mapping(source = "createdAt", target = "created_at")
-  @Mapping(source = "updatedAt", target = "updated_at")
-  GymResponse toResponse(Gym gym);
+  @Mapping(source = "userCount", target = "userCount")
+  @Mapping(source = "gym.createdAt", target = "created_at")
+  @Mapping(source = "gym.updatedAt", target = "updated_at")
+  GymResponse toResponse(Gym gym, long userCount);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   @Mapping(target = "id", ignore = true)
